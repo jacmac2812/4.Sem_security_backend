@@ -25,8 +25,6 @@ public class ApplicationConfig extends Application {
         resources.add(errorhandling.MissingInputExceptionMapper.class);
         resources.add(org.glassfish.jersey.server.wadl.internal.WadlResource.class);
         resources.add(rest.DemoResource.class);
-        resources.add(rest.ProductResource.class);
-        resources.add(rest.RenameMeResource.class);
         resources.add(rest.UserResource.class);
         resources.add(security.JWTAuthenticationFilter.class);
         resources.add(security.LoginEndpoint.class);

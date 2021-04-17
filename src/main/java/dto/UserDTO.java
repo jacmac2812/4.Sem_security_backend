@@ -15,20 +15,20 @@ public class UserDTO {
 
     String name;
     String email;
-    String phoneNumber;
     String password;
+    String profilePicPath;
 
-    public UserDTO(String name, String password, String email, String phoneNumber) {
+    public UserDTO(String name, String password, String email, String profilePicPath) {
         this.name = name;
         this.password = password;
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.profilePicPath = profilePicPath;
     }
 
     public UserDTO(User user) {
         this.name = user.getUserName();
         this.email = user.getEmail();
-        this.phoneNumber = user.getPhoneNumber();
+        this.profilePicPath = user.getProfilePicPath();
     }
 
     public String getName() {
@@ -47,12 +47,12 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getProfilePicPath() {
+        return profilePicPath;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setProfilePicPath(String profilePicPath) {
+        this.profilePicPath = profilePicPath;
     }
 
     public String getPassword() {

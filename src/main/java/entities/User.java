@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -47,10 +48,10 @@ public class User implements Serializable {
 
     @Basic(optional = false)
     @NotNull
-    private String phoneNumber;
+    private String profilePicPath;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.PERSIST)
-    List<Favorit> favorites;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    List<Post> posts;
 
     public List<String> getRolesAsStrings() {
         if (roleList.isEmpty()) {
@@ -71,13 +72,13 @@ public class User implements Serializable {
         return (BCrypt.checkpw(pw, userPass));
     }
 
-    public User(String userName, String userPass, String email, String phoneNumber) {
+    public User(String userName, String userPass, String email, String profilePicPath) {
         this.userName = userName;
         this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt(5));
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.profilePicPath = profilePicPath;
         this.roleList = new ArrayList<>();
-        this.favorites = new ArrayList<>();
+        this.posts = new ArrayList<>();
     }
 
     public String getUserName() {
@@ -121,29 +122,22 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getProfilePicPath() {
+        return profilePicPath;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setProfilePicPath(String profilePicPath) {
+        this.profilePicPath = profilePicPath;
     }
 
-    public List<Favorit> getFavorites() {
-        return favorites;
+    public List<Post> getPosts() {
+        return posts;
     }
 
-    public void addFavorit(Favorit favorit) {
-        if (favorit != null) {
-            this.favorites.add(favorit);
-            favorit.getUsers().add(this);
-        }
-    }
-
-    public void removeFavorit(Favorit favorit) {
-        if (favorit != null) {
-            this.favorites.remove(favorit);
-            favorit.getUsers().remove(this);
+    public void addPost(Post post) {
+        if (post != null) {
+            this.posts.add(post);
+            post.setUser(this);
         }
     }
 }

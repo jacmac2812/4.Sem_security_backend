@@ -51,23 +51,20 @@ public class UserFacade {
         return user;
     }
 
-    public UserDTO createUser(String name, String password, String email, String phoneNumber) throws MissingInputException {
-        
+    public UserDTO createUser(String name, String password, String email, String profilePicPath) throws MissingInputException {
+
         if (name.length() == 0 || password.length() == 0) {
             throw new MissingInputException("Name and/or password is missing");
         }
         if (email.length() == 0 || email.contains("@") == false) {
             throw new MissingInputException("Email missing and/or does not contain @");
         }
-        if (phoneNumber.length() != 8) {
-            throw new MissingInputException("Phonenumber is the wrong length");
-        }
-        
+
         EntityManager em = emf.createEntityManager();
 
         try {
 
-            User u = new User(name, password, email, phoneNumber);
+            User u = new User(name, password, email, profilePicPath);
             Role userRole = new Role("user");
 
             u.addRole(userRole);
@@ -109,18 +106,18 @@ public class UserFacade {
 
         try {
             User user = em.find(User.class, name);
-            
+
             if (u.getPassword().length() != 0) {
                 user.setUserPass(BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(5)));
             }
-            
-            if (u.getEmail().length() != 0 || u.getEmail().contains("@") == true) {
+
+            if (u.getEmail().length() != 0 && u.getEmail().contains("@") == true) {
                 user.setEmail(u.getEmail());
             }
-            
-            if (u.getPhoneNumber().length() != 0) {
-                user.setPhoneNumber(u.getPhoneNumber());
-            }            
+
+            if (u.getProfilePicPath().length() != 0 && u.getProfilePicPath().contains(".jpg") == true) {
+                user.setProfilePicPath(u.getProfilePicPath());
+            }
 
             em.getTransaction().begin();
 

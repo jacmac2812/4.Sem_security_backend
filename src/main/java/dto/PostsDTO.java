@@ -5,7 +5,7 @@
  */
 package dto;
 
-import entities.Favorit;
+import entities.Post;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,16 +13,16 @@ import java.util.List;
  *
  * @author jacobsimonsen
  */
-public class ProductsDTO {
-     List<ProductDTO> all = new ArrayList();
+public class PostsDTO {
+         List<PostDTO> all = new ArrayList();
 
-    public ProductsDTO(List<Favorit> favoritEntities) {
-        favoritEntities.forEach((f) -> {
-            all.add(new ProductDTO(f));
+    public PostsDTO(List<Post> postEntities) {
+        postEntities.forEach((p) -> {
+            all.add(new PostDTO(p));
         });
     }
 
-    public List<ProductDTO> getAll() {
+    public List<PostDTO> getAll() {
         return all;
     }
 }

@@ -2,10 +2,6 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dto.CategoryDTO;
-import dto.OnSaleDTO;
-import dto.ProductDTO;
-import dto.SearchDTO;
 import entities.Role;
 import entities.User;
 import java.io.IOException;
@@ -23,7 +19,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import fetchers.ProductFetcher;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 import utils.EMF_Creator;
@@ -55,6 +50,7 @@ public class DemoResource {
     //Just to verify if the database is setup
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
     @Path("all")
     public String allUsers() {
 
