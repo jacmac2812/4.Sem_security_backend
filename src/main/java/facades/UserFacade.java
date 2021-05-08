@@ -51,7 +51,7 @@ public class UserFacade {
         return user;
     }
 
-    public UserDTO createUser(String name, String password, String email, String profilePicPath) throws MissingInputException {
+    public UserDTO createUser(String name, String password, String email, String age, String profilePicPath) throws MissingInputException {
 
         if (name.length() == 0 || password.length() == 0) {
             throw new MissingInputException("Name and/or password is missing");
@@ -59,12 +59,15 @@ public class UserFacade {
         if (email.length() == 0 || email.contains("@") == false) {
             throw new MissingInputException("Email missing and/or does not contain @");
         }
+        if (Integer.parseInt(age) <= 13) {
+            throw new MissingInputException("Age missing or must be higher then 13");
+        }
 
         EntityManager em = emf.createEntityManager();
 
         try {
 
-            User u = new User(name, password, email, profilePicPath);
+            User u = new User(name, password, email, age, profilePicPath);
             Role userRole = new Role("user");
 
             u.addRole(userRole);
@@ -115,6 +118,9 @@ public class UserFacade {
                 user.setEmail(u.getEmail());
             }
 
+            if (Integer.parseInt(u.getAge()) >= 13) {
+                user.setAge(u.getAge());
+            }
             if (u.getProfilePicPath().length() != 0 && u.getProfilePicPath().contains(".jpg") == true) {
                 user.setProfilePicPath(u.getProfilePicPath());
             }

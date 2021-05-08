@@ -50,7 +50,6 @@ public class DemoResource {
     //Just to verify if the database is setup
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("admin")
     @Path("all")
     public String allUsers() {
 

@@ -16,18 +16,21 @@ public class UserDTO {
     String name;
     String email;
     String password;
+    String age;
     String profilePicPath;
 
-    public UserDTO(String name, String password, String email, String profilePicPath) {
+    public UserDTO(String name, String password, String email, String age, String profilePicPath) {
         this.name = name;
         this.password = password;
         this.email = email;
+        this.age = age;
         this.profilePicPath = profilePicPath;
     }
 
     public UserDTO(User user) {
         this.name = user.getUserName();
         this.email = user.getEmail();
+        this.age = user.getAge();
         this.profilePicPath = user.getProfilePicPath();
     }
 
@@ -45,6 +48,14 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 
     public String getProfilePicPath() {

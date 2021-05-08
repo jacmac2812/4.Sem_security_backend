@@ -45,6 +45,10 @@ public class User implements Serializable {
     @Basic(optional = false)
     @NotNull
     private String email;
+    
+    @Basic(optional = false)
+    @NotNull
+    private String age;
 
     @Basic(optional = false)
     @NotNull
@@ -72,13 +76,22 @@ public class User implements Serializable {
         return (BCrypt.checkpw(pw, userPass));
     }
 
-    public User(String userName, String userPass, String email, String profilePicPath) {
+    public User(String userName, String userPass, String email, String age, String profilePicPath) {
         this.userName = userName;
         this.userPass = BCrypt.hashpw(userPass, BCrypt.gensalt(5));
         this.email = email;
+        this.age = age;
         this.profilePicPath = profilePicPath;
         this.roleList = new ArrayList<>();
         this.posts = new ArrayList<>();
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 
     public String getUserName() {

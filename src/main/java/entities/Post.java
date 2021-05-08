@@ -43,7 +43,7 @@ public class Post implements Serializable {
     public Post() {
     }
 
-    public Post(String content, Date date) {
+    public Post(String content) {
         this.content = content;
         this.date = new Date();
     }

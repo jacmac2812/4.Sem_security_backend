@@ -5,12 +5,12 @@
  */
 package facades;
 
+import dto.PostDTO;
 import dto.UserDTO;
+import entities.Post;
 import entities.Role;
 import entities.User;
 import errorhandling.MissingInputException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -18,18 +18,17 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 
 /**
  *
- * @author Acer
+ * @author jacobsimonsen
  */
-public class UserFacadeTest {
+public class PostFacadeTest {
 
     private static EntityManagerFactory emf;
-    private static UserFacade facade;
+    private static PostFacade facade;
     User user;
     User admin;
     User mod;
@@ -37,14 +36,17 @@ public class UserFacadeTest {
     Role userRole;
     Role adminRole;
     Role modRole;
-        
-    public UserFacadeTest() {
+    Post post1;
+    Post post2;
+    Post post3;
+
+    public PostFacadeTest() {
     }
 
     @BeforeAll
     public static void setUpClass() {
         emf = EMF_Creator.createEntityManagerFactoryForTest();
-        facade = UserFacade.getUserFacade(emf);
+        facade = PostFacade.getPostFacade(emf);
     }
 
     @AfterAll
@@ -53,6 +55,7 @@ public class UserFacadeTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
+            em.createNamedQuery("Post.deleteAllRows").executeUpdate();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
@@ -72,6 +75,10 @@ public class UserFacadeTest {
             mod = new User("mod", "witthh", "mod@mail.dk", "30", "heeeej.jpg");
             both = new User("user_admin", "you", "both@mail.dk", "40", "hi.jpg");
 
+            post1 = new Post("fuck hvor jeg hader tests");
+            post2 = new Post("hej med dig");
+            post3 = new Post("hva laver du?");
+
             em.getTransaction().begin();
             userRole = new Role("user");
             modRole = new Role("mod");
@@ -81,7 +88,11 @@ public class UserFacadeTest {
             mod.addRole(modRole);
             both.addRole(userRole);
             both.addRole(adminRole);
+            user.addPost(post1);
+            mod.addPost(post2);
+            admin.addPost(post3);
 
+            em.createNamedQuery("Post.deleteAllRows").executeUpdate();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
 
@@ -105,48 +116,44 @@ public class UserFacadeTest {
     }
 
     @Test
-    public void testGetAllUsers() {
-        assertEquals(4, facade.getAllUsers().getAll().size(), "Expect four users");
+    public void testGetAllPosts() {
+        assertEquals(3, facade.getAllPosts().getAll().size(), "Expect three posts");
     }
 
     @Test
-    public void testAddPerson() throws MissingInputException {
-        UserDTO uDTO = facade.createUser("test", "test", "test@mail.dk", "33", "hej.jpg");
-        assertEquals("test", uDTO.getName(), "Expect the same name");
-        assertEquals(5, facade.getAllUsers().getAll().size(), "Excepts five persons");
+    public void testGetAllUserPosts() {
+        assertEquals(1, facade.getAllPostsUser(user.getUserName()).getAll().size(), "Expect one post from user");
     }
 
     @Test
-    public void testAddPersonException() {
-        try {
-            UserDTO uDTO = facade.createUser("test", "", "test@mail.dk", "33", "hej.jpg");
-        } catch (MissingInputException ex) {
-            assertEquals("Name and/or password is missing", ex.getMessage(), "Except the same error message");
-        }
+    public void testAddPost() throws MissingInputException {
+        PostDTO pDTO = facade.createPost("heeeeeeeeeeeeeeej", admin.getUserName());
+        assertEquals("heeeeeeeeeeeeeeej", pDTO.getContent(), "Expect the same name");
+        assertEquals(4, facade.getAllPosts().getAll().size(), "Excepts four persons");
     }
-    
-     @Test
-    public void testAddPersonExceptionProfilePic() {
+
+    @Test
+    public void testAddPostException() {
         try {
-            UserDTO uDTO = facade.createUser("test", "test", "test@mail.dk", "33", "hej.gif");
+            PostDTO pDTO = facade.createPost("", admin.getUserName());
         } catch (MissingInputException ex) {
-            assertEquals("Name and/or password is missing", ex.getMessage(), "Except the same error message");
+            assertEquals("Content missing", ex.getMessage(), "Except the same error message");
         }
     }
 
     @Test
-    public void testEditPerson() {
-        UserDTO uDTO = new UserDTO("user", "hello", "user@mail.dk", "33", "hej.jpg");
-        uDTO.setEmail("newmail@mail.dk");
-        UserDTO uDTOedited = facade.editUser(uDTO, user.getUserName());
-        assertEquals(uDTOedited.getEmail(), uDTO.getEmail(), "Except the same email");
-        assertEquals(uDTOedited.getAge(), uDTO.getAge(), "Except the same age");
+    public void testEditPost() throws MissingInputException {
+        PostDTO pDTO = new PostDTO(post2);
+        pDTO.setContent("newmail@mail.dk");
+        PostDTO pDTOedited = facade.editPost(pDTO, mod.getUserName());
+        assertEquals(pDTOedited.getContent(), pDTO.getContent() + " (<i>edited</i>)", "Except the same post");
+        assertEquals(pDTOedited.getDate(), pDTO.getDate(), "Except the same date");
     }
 
     @Test
-    public void testDeletePerson() {
-        UserDTO uDTO = facade.deleteUser(both.getUserName());
-        assertEquals(3, facade.getAllUsers().getAll().size(), "Excepts three persons");
+    public void testDeletePost() throws MissingInputException {
+        PostDTO pDTO = facade.deletePost(mod.getUserName(), post2.getId());
+        assertEquals(2, facade.getAllPosts().getAll().size(), "Excepts three persons");
     }
 
 }

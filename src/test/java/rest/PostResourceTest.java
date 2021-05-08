@@ -5,9 +5,12 @@
  */
 package rest;
 
+import dto.PostDTO;
 import dto.UserDTO;
+import entities.Post;
 import entities.Role;
 import entities.User;
+import facades.PostFacade;
 import facades.UserFacade;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
@@ -30,18 +33,17 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
 
 /**
  *
- * @author Acer
+ * @author jacobsimonsen
  */
-public class UserResourceTest {
+public class PostResourceTest {
 
     private static EntityManagerFactory emf;
-    private static UserFacade facade;
+    private static PostFacade facade;
     User user;
     User admin;
     User mod;
@@ -49,6 +51,9 @@ public class UserResourceTest {
     Role userRole;
     Role adminRole;
     Role modRole;
+    Post post1;
+    Post post2;
+    Post post3;
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
@@ -102,6 +107,7 @@ public class UserResourceTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
+            em.createNamedQuery("Post.deleteAllRows").executeUpdate();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
@@ -126,6 +132,10 @@ public class UserResourceTest {
             mod = new User("mod", "witthh", "mod@mail.dk", "30", "heeeej.jpg");
             both = new User("user_admin", "you", "both@mail.dk", "40", "hi.jpg");
 
+            post1 = new Post("fuck hvor jeg hader tests");
+            post2 = new Post("hej med dig");
+            post3 = new Post("hva laver du?");
+
             em.getTransaction().begin();
             userRole = new Role("user");
             modRole = new Role("mod");
@@ -135,7 +145,11 @@ public class UserResourceTest {
             mod.addRole(modRole);
             both.addRole(userRole);
             both.addRole(adminRole);
+            user.addPost(post1);
+            mod.addPost(post2);
+            admin.addPost(post3);
 
+            em.createNamedQuery("Post.deleteAllRows").executeUpdate();
             em.createNamedQuery("User.deleteAllRows").executeUpdate();
             em.createNamedQuery("Role.deleteAllRows").executeUpdate();
 
@@ -159,78 +173,73 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testAddUser() throws Exception {
-
-        given()
-                .contentType("application/json")
-                .body(new UserDTO("test", "1234", "test@mail.dk", "14", "hej.jpg"))
-                .when()
-                .post("users")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.OK_200.getStatusCode())
-                .body("name", equalTo("test"))
-                .body("email", equalTo("test@mail.dk"))
-                .body("age", equalTo("14"))
-                .body("profilePicPath", equalTo("hej.jpg"));
-    }
-
-    @Test
-    public void testEditUser() throws Exception {
-        login("admin", "with");
-        UserDTO uDTO = new UserDTO("user", "1234", "test@mail.dk", "22", "hva.jpg");
+    public void testAddPost() throws Exception {
+        login("user", "hello");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
-                .body(uDTO)
+                .body("{\n"
+                        + "   \"content\" : \"heeej\"\n"
+                        + "}")
                 .when()
-                .put("users/" + user.getUserName())
+                .post("posts/user")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
-                .body("name", equalTo("user"))
-                .body("email", equalTo("test@mail.dk"))
-                .body("age", equalTo("22"))
-                .body("profilePicPath", equalTo("hva.jpg"));
+                .body("content", equalTo("heeej"));
+    }
+ @Test
+    public void testEditPost() throws Exception {
+        login("user", "hello");
+        PostDTO pDTO = new PostDTO(post1);
+        pDTO.setContent("hejjj");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .body(pDTO)
+                .when()
+                .put("posts/" + user.getUserName())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("content", equalTo("hejjj" + " (<i>edited</i>)"));
 
     }
-
-    @Test
-    public void testDeleteUser() throws Exception {
-        login("admin", "with");
+@Test
+    public void testDeletePost() throws Exception {
+        login("user", "hello");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
                 .when()
-                .delete("users/" + user.getUserName())
+                .delete("posts/" + post1.getId() + "/users/" + user.getUserName() )
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode());
-        List<UserDTO> usersDTO;
-        usersDTO = given()
+        List<PostDTO> postsDTO;
+        postsDTO = given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
                 .header("x-access-token", securityToken)
                 .when()
-                .get("/users/all").then()
-                .extract().body().jsonPath().getList("all", UserDTO.class);
+                .get("/posts/all").then()
+                .extract().body().jsonPath().getList("all", PostDTO.class);
 
-        assertThat(usersDTO, iterableWithSize(3));
+        assertThat(postsDTO, iterableWithSize(2));
     }
-
-    @Test
+  @Test
     public void testGetAllUsers() throws Exception {
 
-        login("admin", "with");
-        List<UserDTO> usersDTO;
-        usersDTO = given()
+        login("user", "hello");
+        List<PostDTO> postsDTO;
+        postsDTO = given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
                 .header("x-access-token", securityToken)
                 .when()
-                .get("/users/all").then()
-                .extract().body().jsonPath().getList("all", UserDTO.class);
+                .get("/posts/all").then()
+                .extract().body().jsonPath().getList("all", PostDTO.class);
 
-        assertThat(usersDTO, iterableWithSize(4));
+        assertThat(postsDTO, iterableWithSize(3));
     }
 }

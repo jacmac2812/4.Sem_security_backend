@@ -42,7 +42,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String createUser(String user) throws MissingInputException {
         UserDTO uDTO = GSON.fromJson(user, UserDTO.class);
-        UserDTO uAdded = FACADE.createUser(uDTO.getName(), uDTO.getPassword(), uDTO.getEmail(), uDTO.getProfilePicPath());
+        UserDTO uAdded = FACADE.createUser(uDTO.getName(), uDTO.getPassword(), uDTO.getEmail(), uDTO.getAge(), uDTO.getProfilePicPath());
         return GSON.toJson(uAdded);
     }
 

@@ -27,9 +27,8 @@ public class PostDTO {
         this.userName = post.getUser().getUserName();
     }
 
-    public PostDTO(String content, Date date, String userName) {
+    public PostDTO(String content, String userName) {
         this.content = content;
-        this.date = date;
         this.userName = userName;
     }
 
