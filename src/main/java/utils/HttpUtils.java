@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class HttpUtils {
@@ -23,5 +24,17 @@ public class HttpUtils {
         }
         scan.close();
         return jsonStr;
+    }
+
+    public String[] decodeToken(String token) {
+        String[] chunks = token.split("\\.");
+
+        Base64.Decoder decoder = Base64.getDecoder();
+
+        String header = new String(decoder.decode(chunks[0]));
+        String payload = new String(decoder.decode(chunks[1]));
+        String[] splitPayload = payload.split("\"");
+        String[] splittedPayload = {splitPayload[3], splitPayload[7]};
+        return splittedPayload;
     }
 }

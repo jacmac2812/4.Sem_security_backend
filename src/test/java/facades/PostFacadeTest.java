@@ -145,14 +145,16 @@ public class PostFacadeTest {
     public void testEditPost() throws MissingInputException {
         PostDTO pDTO = new PostDTO(post2);
         pDTO.setContent("newmail@mail.dk");
-        PostDTO pDTOedited = facade.editPost(pDTO, mod.getUserName());
+        String[] splitToken = {pDTO.getUserName(), "mod"};
+        PostDTO pDTOedited = facade.editPost(pDTO, splitToken, mod.getUserName());
         assertEquals(pDTOedited.getContent(), pDTO.getContent() + " (<i>edited</i>)", "Except the same post");
         assertEquals(pDTOedited.getDate(), pDTO.getDate(), "Except the same date");
     }
 
     @Test
     public void testDeletePost() throws MissingInputException {
-        PostDTO pDTO = facade.deletePost(mod.getUserName(), post2.getId());
+        String[] splitToken = {mod.getUserName(), "mod"};
+        PostDTO pDTO = facade.deletePost(mod.getUserName(), splitToken, post2.getId());
         assertEquals(2, facade.getAllPosts().getAll().size(), "Excepts three persons");
     }
 

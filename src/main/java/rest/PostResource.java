@@ -21,6 +21,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -28,6 +29,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import utils.EMF_Creator;
+import utils.HttpUtils;
 
 /**
  *
@@ -41,6 +43,8 @@ public class PostResource {
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
 
     private static final PostFacade FACADE = PostFacade.getPostFacade(EMF);
+    
+        private static final HttpUtils utils = new HttpUtils();
 
     @Path("/{username}")
     @POST
@@ -57,8 +61,9 @@ public class PostResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"user", "mod"})
-    public String deletePost(@PathParam("id") int id, @PathParam("username") String userName) throws MissingInputException {
-        PostDTO pDeleted = FACADE.deletePost(userName, id);
+    public String deletePost(@HeaderParam("x-access-token") String token, @PathParam("id") int id, @PathParam("username") String userName) throws MissingInputException {
+        String[] splitArray = utils.decodeToken(token);
+        PostDTO pDeleted = FACADE.deletePost(userName, splitArray, id);
         return GSON.toJson(pDeleted);
     }
 
@@ -67,9 +72,10 @@ public class PostResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod"})
-    public String editPost(@PathParam("username") String userName, String post) throws MissingInputException {
+    public String editPost(@HeaderParam("x-access-token") String token, @PathParam("username") String userName, String post) throws MissingInputException {
         PostDTO pDTO = GSON.fromJson(post, PostDTO.class);
-        PostDTO uEdited = FACADE.editPost(pDTO, userName);
+        String[] splitArray = utils.decodeToken(token);
+        PostDTO uEdited = FACADE.editPost(pDTO, splitArray, userName);
         return GSON.toJson(uEdited);
     }
 

@@ -74,60 +74,68 @@ public class PostFacade {
         }
     }
 
-    public PostDTO deletePost(String userName, int id) throws MissingInputException {
+    public PostDTO deletePost(String userName, String[] tokenSplit, int id) throws MissingInputException {
         EntityManager em = emf.createEntityManager();
+        if (userName.equals(tokenSplit[0]) || "mod".equals(tokenSplit[1])) {
 
-        try {
-            User user = em.find(User.class, userName);
+            try {
+                User user = em.find(User.class, userName);
 
-            Post post = em.find(Post.class, id);
+                Post post = em.find(Post.class, id);
 
-            if (user.getPosts().contains(post)) {
-                em.getTransaction().begin();
+                if (user.getPosts().contains(post)) {
+                    em.getTransaction().begin();
 
-                em.remove(post);
+                    em.remove(post);
 
-                em.getTransaction().commit();
-            } else {
+                    em.getTransaction().commit();
+                } else {
 
-                throw new MissingInputException("Not authorized to delete post");
+                    throw new MissingInputException("Post not found");
+                }
+
+                PostDTO pDTO = new PostDTO(post);
+
+                return pDTO;
+
+            } finally {
+                em.close();
             }
-
-            PostDTO pDTO = new PostDTO(post);
-
-            return pDTO;
-
-        } finally {
-            em.close();
+        } else {
+            throw new MissingInputException("Not authorized to delete post");
         }
     }
 
-    public PostDTO editPost(PostDTO p, String userName) throws MissingInputException {
+    public PostDTO editPost(PostDTO p, String[] tokenSplit, String userName) throws MissingInputException {
         EntityManager em = emf.createEntityManager();
-        if (p.getContent().length() == 0) {
-            throw new MissingInputException("Content missing");
-        }
-        try {
-            User user = em.find(User.class, userName);
-
-            Post post = em.find(Post.class, p.getId());
-
-            if (user.getPosts().contains(post)) {
-                em.getTransaction().begin();
-
-                post.setContent(p.getContent() + " (<i>edited</i>)");
-
-                em.getTransaction().commit();
-            } else {
-
-                throw new MissingInputException("Not authorized to edit post");
+        if (userName.equals(tokenSplit[0]) || "mod".equals(tokenSplit[1])) {
+            if (p.getContent().length() == 0) {
+                throw new MissingInputException("Content missing");
             }
+            try {
+                User user = em.find(User.class, userName);
 
-            PostDTO pDTO = new PostDTO(post);
+                Post post = em.find(Post.class, p.getId());
 
-            return pDTO;
-        } finally {
-            em.close();
+                if (user.getPosts().contains(post)) {
+                    em.getTransaction().begin();
+
+                    post.setContent(p.getContent() + " (<i>edited</i>)");
+
+                    em.getTransaction().commit();
+                } else {
+
+                    throw new MissingInputException("Post not found");
+                }
+
+                PostDTO pDTO = new PostDTO(post);
+
+                return pDTO;
+            } finally {
+                em.close();
+            }
+        } else {
+            throw new MissingInputException("Not authorized to edit post");
         }
     }
 
