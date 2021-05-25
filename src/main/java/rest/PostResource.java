@@ -99,5 +99,6 @@ public class PostResource {
         logger.info("GET: /posts/all/{username}");
         PostsDTO psDTO = FACADE.getAllPostsUser(userName);
         return GSON.toJson(psDTO);
+    
     }
 }
