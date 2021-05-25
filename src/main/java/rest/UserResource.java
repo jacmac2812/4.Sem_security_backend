@@ -22,6 +22,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utils.EMF_Creator;
 
 /**
@@ -34,6 +36,8 @@ public class UserResource {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
+    
+    private static final Logger logger = LogManager.getLogger(UserResource.class);
 
     private static final UserFacade FACADE = UserFacade.getUserFacade(EMF);
 
@@ -41,6 +45,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String createUser(String user) throws MissingInputException {
+                logger.info("POST: /users");
         UserDTO uDTO = GSON.fromJson(user, UserDTO.class);
         UserDTO uAdded = FACADE.createUser(uDTO.getName(), uDTO.getPassword(), uDTO.getEmail(), uDTO.getAge(), uDTO.getProfilePicPath());
         return GSON.toJson(uAdded);
@@ -51,6 +56,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("admin")
     public String deleteUser(@PathParam("name") String name) {
+        logger.warn("DELETE: /users/{name}");
         UserDTO uDeleted = FACADE.deleteUser(name);
         return GSON.toJson(uDeleted);
     }
@@ -61,6 +67,7 @@ public class UserResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "admin"})
     public String editUser(@PathParam("name") String name, String user) {
+        logger.warn("PUT: /users/{name}");
         UserDTO uDTO = GSON.fromJson(user, UserDTO.class);
         UserDTO uEdited = FACADE.editUser(uDTO, name);
         return GSON.toJson(uEdited);
@@ -71,6 +78,7 @@ public class UserResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed("admin")
     public String getAllUsers() {
+        logger.warn("GET: /users/all");
         UsersDTO usDTO = FACADE.getAllUsers();
         return GSON.toJson(usDTO);
     }

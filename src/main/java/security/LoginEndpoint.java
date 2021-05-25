@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import security.errorhandling.AuthenticationException;
 import errorhandling.GenericExceptionMapper;
 import javax.persistence.EntityManagerFactory;
+import org.apache.logging.log4j.LogManager;
 import utils.EMF_Creator;
 
 @Path("login")
@@ -32,12 +33,16 @@ public class LoginEndpoint {
 
   public static final int TOKEN_EXPIRE_TIME = 1000 * 60 * 30; //30 min
   private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
+  
+  private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(LoginEndpoint.class);
+  
   public static final UserFacade USER_FACADE = UserFacade.getUserFacade(EMF);
   
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response login(String jsonString) throws AuthenticationException {
+      logger.warn("POST: /login");
     JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
     String username = json.get("username").getAsString();
     String password = json.get("password").getAsString();

@@ -7,15 +7,11 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.nimbusds.jose.shaded.json.JSONObject;
 import dto.ContentDTO;
 import dto.PostDTO;
 import dto.PostsDTO;
-import dto.UserDTO;
-import dto.UsersDTO;
 import errorhandling.MissingInputException;
 import facades.PostFacade;
-import facades.UserFacade;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
@@ -28,6 +24,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import utils.EMF_Creator;
 import utils.HttpUtils;
 
@@ -42,9 +40,11 @@ public class PostResource {
 
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
 
+    private static final Logger logger = LogManager.getLogger(PostResource.class);
+
     private static final PostFacade FACADE = PostFacade.getPostFacade(EMF);
-    
-        private static final HttpUtils utils = new HttpUtils();
+
+    private static final HttpUtils utils = new HttpUtils();
 
     @Path("/{username}")
     @POST
@@ -52,6 +52,7 @@ public class PostResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"user", "mod"})
     public String createPost(@PathParam("username") String userName, String content) throws MissingInputException {
+        logger.info("POST: /posts/{username}");
         ContentDTO cDTO = GSON.fromJson(content, ContentDTO.class);
         PostDTO pAdded = FACADE.createPost(cDTO.getContent(), userName);
         return GSON.toJson(pAdded);
@@ -62,6 +63,7 @@ public class PostResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({"user", "mod"})
     public String deletePost(@HeaderParam("x-access-token") String token, @PathParam("id") int id, @PathParam("username") String userName) throws MissingInputException {
+        logger.warn("DELETE: /posts/{id}/users/{username}");
         String[] splitArray = utils.decodeToken(token);
         PostDTO pDeleted = FACADE.deletePost(userName, splitArray, id);
         return GSON.toJson(pDeleted);
@@ -73,6 +75,7 @@ public class PostResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod"})
     public String editPost(@HeaderParam("x-access-token") String token, @PathParam("username") String userName, String post) throws MissingInputException {
+        logger.warn("PUT: /posts/{username}");
         PostDTO pDTO = GSON.fromJson(post, PostDTO.class);
         String[] splitArray = utils.decodeToken(token);
         PostDTO uEdited = FACADE.editPost(pDTO, splitArray, userName);
@@ -84,6 +87,7 @@ public class PostResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod", "admin"})
     public String getAllPosts() {
+        logger.trace("GET: /posts/all");
         PostsDTO psDTO = FACADE.getAllPosts();
         return GSON.toJson(psDTO);
     }
@@ -93,6 +97,7 @@ public class PostResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod"})
     public String getAllPostsUser(@PathParam("username") String userName) {
+        logger.info("GET: /posts/all/{username}");
         PostsDTO psDTO = FACADE.getAllPostsUser(userName);
         return GSON.toJson(psDTO);
     }

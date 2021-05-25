@@ -2,9 +2,7 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import entities.Role;
 import entities.User;
-import java.io.IOException;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
@@ -14,21 +12,20 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PathParam;
 import utils.EMF_Creator;
-import utils.HttpUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author lam@cphbusiness.dk
  */
 @Path("info")
 public class DemoResource {
+
+    private static final Logger logger = LogManager.getLogger(DemoResource.class);
 
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
     @Context
@@ -44,6 +41,7 @@ public class DemoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getInfoForAll() {
+        logger.trace("GET: /info");
         return "{\"msg\":\"Hello anonymous\"}";
     }
 
@@ -52,7 +50,7 @@ public class DemoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("all")
     public String allUsers() {
-
+        logger.trace("GET: /info/all");
         EntityManager em = EMF.createEntityManager();
         try {
             TypedQuery<User> query = em.createQuery("select u from User u", entities.User.class);
@@ -68,6 +66,7 @@ public class DemoResource {
     @Path("user")
     @RolesAllowed("user")
     public String getFromUser() {
+        logger.info("GET: /info/user");
         String thisuser = securityContext.getUserPrincipal().getName();
         return "{\"msg\": \"Hello to User: " + thisuser + "\"}";
     }
@@ -77,6 +76,7 @@ public class DemoResource {
     @Path("admin")
     @RolesAllowed("admin")
     public String getFromAdmin() {
+        logger.warn("GET: /info/admin");
         String thisuser = securityContext.getUserPrincipal().getName();
         return "{\"msg\": \"Hello to (admin) User: " + thisuser + "\"}";
     }
