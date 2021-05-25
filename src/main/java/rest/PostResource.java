@@ -87,7 +87,6 @@ public class PostResource {
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod", "admin"})
     public String getAllPosts() {
-        logger.trace("GET: /posts/all");
         PostsDTO psDTO = FACADE.getAllPosts();
         return GSON.toJson(psDTO);
     }
