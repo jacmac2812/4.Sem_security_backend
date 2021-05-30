@@ -26,6 +26,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import security.errorhandling.AuthenticationException;
 import utils.EMF_Creator;
 import utils.HttpUtils;
 
@@ -95,7 +96,7 @@ public class PostResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @RolesAllowed({"user", "mod"})
-    public String getAllPostsUser(@PathParam("username") String userName) {
+    public String getAllPostsUser(@PathParam("username") String userName) throws AuthenticationException {
         logger.info("GET: /posts/all/{username}");
         PostsDTO psDTO = FACADE.getAllPostsUser(userName);
         return GSON.toJson(psDTO);

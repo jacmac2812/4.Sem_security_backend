@@ -7,18 +7,13 @@ package facades;
 
 import dto.PostDTO;
 import dto.PostsDTO;
-import dto.UserDTO;
-import dto.UsersDTO;
 import entities.Post;
-import entities.Role;
 import entities.User;
 import errorhandling.MissingInputException;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
-import org.mindrot.jbcrypt.BCrypt;
 import security.errorhandling.AuthenticationException;
 
 /**
