@@ -177,7 +177,7 @@ public class UserResourceTest {
 
     @Test
     public void testEditUser() throws Exception {
-        login("admin", "with");
+        login("user", "hello");
         UserDTO uDTO = new UserDTO("user", "1234", "test@mail.dk", "22", "hva.jpg");
         given()
                 .contentType("application/json")

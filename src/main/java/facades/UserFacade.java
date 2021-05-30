@@ -2,9 +2,11 @@ package facades;
 
 import dto.UserDTO;
 import dto.UsersDTO;
+import entities.Post;
 import entities.Role;
 import entities.User;
 import errorhandling.MissingInputException;
+import errorhandling.NotFoundException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -90,6 +92,11 @@ public class UserFacade {
             User user = em.find(User.class, name);
 
             em.getTransaction().begin();
+            List<Post> posts = user.getPosts();
+            
+            for (Post post : posts) {
+                user.removePost(post);
+            }
 
             em.remove(user);
 
@@ -104,37 +111,40 @@ public class UserFacade {
         }
     }
 
-    public UserDTO editUser(UserDTO u, String name) {
+    public UserDTO editUser(UserDTO u, String[] tokenSplit, String name) throws MissingInputException {
         EntityManager em = emf.createEntityManager();
+        if (name.equals(tokenSplit[0])) {
+            try {
+                User user = em.find(User.class, name);
 
-        try {
-            User user = em.find(User.class, name);
+                if (u.getPassword().length() != 0) {
+                    user.setUserPass(BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(5)));
+                }
 
-            if (u.getPassword().length() != 0) {
-                user.setUserPass(BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(5)));
+                if (u.getEmail().length() != 0 && u.getEmail().contains("@") == true) {
+                    user.setEmail(u.getEmail());
+                }
+
+                if (Integer.parseInt(u.getAge()) >= 13) {
+                    user.setAge(u.getAge());
+                }
+                if (u.getProfilePicPath().length() != 0 && u.getProfilePicPath().contains(".jpg") == true) {
+                    user.setProfilePicPath(u.getProfilePicPath());
+                }
+
+                em.getTransaction().begin();
+
+                em.persist(user);
+
+                em.getTransaction().commit();
+
+                UserDTO uDTO = new UserDTO(user);
+                return uDTO;
+            } finally {
+                em.close();
             }
-
-            if (u.getEmail().length() != 0 && u.getEmail().contains("@") == true) {
-                user.setEmail(u.getEmail());
-            }
-
-            if (Integer.parseInt(u.getAge()) >= 13) {
-                user.setAge(u.getAge());
-            }
-            if (u.getProfilePicPath().length() != 0 && u.getProfilePicPath().contains(".jpg") == true) {
-                user.setProfilePicPath(u.getProfilePicPath());
-            }
-
-            em.getTransaction().begin();
-
-            em.persist(user);
-
-            em.getTransaction().commit();
-
-            UserDTO uDTO = new UserDTO(user);
-            return uDTO;
-        } finally {
-            em.close();
+        } else {
+            throw new MissingInputException("Not authorized to edit user");
         }
     }
 
@@ -149,4 +159,19 @@ public class UserFacade {
             em.close();
         }
     }
+    public String getPicturePath(String username) throws NotFoundException {
+        EntityManager em = emf.createEntityManager();
+        User user;
+        String picturePath;
+        try {
+            user = em.find(User.class, username);
+            if (user == null) {
+               throw new NotFoundException("User not found");
+            }
+            picturePath = user.getProfilePicPath();
+        } finally {
+            em.close();
+        }
+        return picturePath; 
+}
 }

@@ -151,9 +151,14 @@ public class PostFacade {
         }
     }
 
-    public PostsDTO getAllPostsUser(String name) {
+    public PostsDTO getAllPostsUser(String name) throws AuthenticationException {
         EntityManager em = emf.createEntityManager();
+        User user;
         try {
+             user = em.find(User.class, name);
+            if (user == null) {
+                throw new AuthenticationException("Invalid user");
+            }
             TypedQuery<Post> query = em.createQuery("SELECT p FROM Post p JOIN p.user u WHERE u.userName =:name", Post.class);
             query.setParameter("name", name);
             List<Post> posts = query.getResultList();

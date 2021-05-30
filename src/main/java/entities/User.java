@@ -153,4 +153,10 @@ public class User implements Serializable {
             post.setUser(this);
         }
     }
+    
+    public void removePost(Post post){
+         if (post != null) {
+            this.posts.remove(post);
+        }
+    }
 }

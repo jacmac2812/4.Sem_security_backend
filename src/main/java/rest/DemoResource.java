@@ -80,5 +80,14 @@ public class DemoResource {
         String thisuser = securityContext.getUserPrincipal().getName();
         return "{\"msg\": \"Hello to (admin) User: " + thisuser + "\"}";
     }
+     @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("mod")
+    @RolesAllowed("mod")
+    public String getFromMod() {
+        logger.warn("GET: /info/mod");
+        String thisuser = securityContext.getUserPrincipal().getName();
+        return "{\"msg\": \"Hello to (mod) User: " + thisuser + "\"}";
+    }
 
 }

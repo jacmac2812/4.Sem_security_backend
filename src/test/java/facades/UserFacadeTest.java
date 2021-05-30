@@ -135,10 +135,11 @@ public class UserFacadeTest {
     }
 
     @Test
-    public void testEditPerson() {
+    public void testEditPerson() throws MissingInputException {
         UserDTO uDTO = new UserDTO("user", "hello", "user@mail.dk", "33", "hej.jpg");
         uDTO.setEmail("newmail@mail.dk");
-        UserDTO uDTOedited = facade.editUser(uDTO, user.getUserName());
+          String[] splitToken = {uDTO.getName()};
+        UserDTO uDTOedited = facade.editUser(uDTO, splitToken, user.getUserName());
         assertEquals(uDTOedited.getEmail(), uDTO.getEmail(), "Except the same email");
         assertEquals(uDTOedited.getAge(), uDTO.getAge(), "Except the same age");
     }
